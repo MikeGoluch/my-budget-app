@@ -49,6 +49,11 @@ const budgetCtrl = (function() {
 
 const uiCtrl = (function() {
     
+    const stringToHTML = function (str) {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(str, 'text/html');
+        
+    };
     
 return {
     getInputValue: function() {
@@ -66,6 +71,38 @@ return {
         // let optionValue = select.options[select.selectedIndex].value;
         // console.log(select);
         return select;
+    },
+    clearInputValues: function() {
+        let descInput = document.querySelector('.add__description').value = "";
+        let valueInput = document.querySelector('.add__value').value = "";
+    },
+    displayItem: function(type, item) {
+        const incList = document.querySelector('.income__list');
+        const expList = document.querySelector('.expenses__list');
+        
+        const incMarkup = 
+        `<div class="item clearfix" id="income-0">
+            <div class="item__description">${item.description}</div>
+            <div class="right clearfix">
+                <div class="item__value">+ ${item.value}</div>
+                <div class="item__delete">
+                    <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
+                </div>
+            </div>
+        </div>`;
+        const expMarkup = 
+        `<div class="item clearfix" id="expense-0">
+            <div class="item__description">${item.description}</div>
+            <div class="right clearfix">
+                <div class="item__value">- ${item.value}</div>
+                <div class="item__percentage">21%</div>
+                <div class="item__delete">
+                    <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
+                </div>
+            </div>
+        </div>`;
+        type === 'inc' ? incList.insertAdjacentHTML('beforeend', incMarkup) : expList.insertAdjacentHTML('beforeend', expMarkup);
+
     }
 }
     
@@ -77,12 +114,14 @@ return {
 const appCtrl = (function(budgetCtrl, uiCtrl) {
     document.querySelector('.add__btn').addEventListener('click', function() {
         let type = uiCtrl.getTypeValue();
-        console.log('type', type);
+        // console.log('type', type);
         let values = uiCtrl.getInputValue();
-        console.log('values', values);
+        // console.log('values', values);
         let obj = budgetCtrl.newItem(type, values.desc, values.val);
         // console.log(budgetCtrl.globalData);
-        console.log(obj);
+        uiCtrl.displayItem(type, obj);
+        uiCtrl.clearInputValues();
+        // console.log(obj);
 
         
         // const test = budgetCtrl.newItem('inc', 'lol', 67);
