@@ -16,11 +16,24 @@ const budgetCtrl = (function() {
         this.value = value;
     };
 
+    const calculateTotalAmounts = function(type) {
+        let total = 0;
+        globalData.allData[type].forEach(function(cur) {
+            total += cur.value;
+        });
+        globalData.totalAmount[type] = total;
+    };
+
     let globalData = {
         allData: {
             inc: [],
             exp: []
-        }
+        },
+        totalAmount: {
+            inc: [],
+            exp: []
+        },
+        totalBudget: 0
     }
     
     return {
@@ -41,6 +54,21 @@ const budgetCtrl = (function() {
             globalData.allData[type].push(newItem);
 
             return newItem;
+        },
+        calculateBudget: function() {
+            //total income - total expense
+            calculateTotalAmounts('inc');
+            calculateTotalAmounts('exp');
+            globalData.totalBudget = globalData.totalAmount.inc - globalData.totalAmount.exp;
+            console.log(globalData.totalAmount);
+            console.log(globalData.totalBudget);
+        },
+        getBudgetInfo: function() {
+            return {
+                totalBudget: globalData.totalBudget,
+                totalIncome: globalData.totalAmount.inc,
+                totalExpense: globalData.totalAmount.exp
+            }
         }
     }
 })();
@@ -49,16 +77,16 @@ const budgetCtrl = (function() {
 
 const uiCtrl = (function() {
     
-    const stringToHTML = function (str) {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(str, 'text/html');
+    // const stringToHTML = function (str) {
+    //     var parser = new DOMParser();
+    //     var doc = parser.parseFromString(str, 'text/html');
         
-    };
+    // };
     
 return {
     getInputValue: function() {
         let descInput = document.querySelector('.add__description').value;
-        let valueInput = document.querySelector('.add__value').value;
+        let valueInput = parseInt(document.querySelector('.add__value').value);
         // console.log(descInput);
         // console.log(valueInput);
         return {
@@ -103,6 +131,11 @@ return {
         </div>`;
         type === 'inc' ? incList.insertAdjacentHTML('beforeend', incMarkup) : expList.insertAdjacentHTML('beforeend', expMarkup);
 
+    },
+    displayBudgetInfo: function(obj) {
+        document.querySelector('.budget__value').innerHTML = obj.totalBudget;
+        document.querySelector('.budget__income--value').innerHTML = obj.totalIncome;
+        document.querySelector('.budget__expenses--value').innerHTML = obj.totalExpense;
     }
 }
     
@@ -119,6 +152,9 @@ const appCtrl = (function(budgetCtrl, uiCtrl) {
         // console.log('values', values);
         let obj = budgetCtrl.newItem(type, values.desc, values.val);
         // console.log(budgetCtrl.globalData);
+        budgetCtrl.calculateBudget();
+        let budgetInfo = budgetCtrl.getBudgetInfo();
+        uiCtrl.displayBudgetInfo(budgetInfo)
         uiCtrl.displayItem(type, obj);
         uiCtrl.clearInputValues();
         // console.log(obj);
@@ -136,4 +172,14 @@ const appCtrl = (function(budgetCtrl, uiCtrl) {
             // console.log(test);
         };
     });
+
+    return {
+        appInit: function() {
+            document.querySelector('.budget__value').innerHTML = 0;
+            document.querySelector('.budget__income--value').innerHTML = 0;
+            document.querySelector('.budget__expenses--value').innerHTML = 0;
+        }
+    }
 })(budgetCtrl, uiCtrl);
+
+appCtrl.appInit();
