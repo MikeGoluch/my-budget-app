@@ -8,6 +8,7 @@ const budgetCtrl = (function() {
         this.id = id;
         this.description = description;
         this.value = value;
+        this.percentage = 0;
     };
 
     const Income = function(id, description, value) {
@@ -16,11 +17,28 @@ const budgetCtrl = (function() {
         this.value = value;
     };
 
+    Expense.prototype.calculatePerc = function() {
+        // let totalPercentage = 0;
+        // globalData.totalAmount['inc'].forEach(function(cur) {
+        //     totalPercentage += cur;
+        // });
+        const roundPerc = Math.round((this.value / globalData.totalAmount.inc)*100);
+        this.percentage = roundPerc;
+        // console.log('perc', this.percentage);
+        // console.log(typeof(globalData.totalAmount['inc']));
+        // console.log((globalData.totalAmount.inc));
+        // console.log(typeof(globalData.allData['inc']));
+        // console.log((globalData.allData.inc));
+    };
     const calculateTotalAmounts = function(type) {
         let total = 0;
         globalData.allData[type].forEach(function(cur) {
             total += cur.value;
         });
+        // console.log(typeof(globalData.allData['inc']));
+        console.log('test1', globalData.allData['inc']);
+        console.log('test2', globalData.allData['exp']);
+        console.log('test3', globalData.totalAmount.inc);
         globalData.totalAmount[type] = total;
     };
 
@@ -49,10 +67,11 @@ const budgetCtrl = (function() {
                 newItem = new Income(id, description, value);
             } else if (type === 'exp') {
                 newItem = new Expense(id, description, value);
+                newItem.calculatePerc();
+                // console.log(globalData.totalAmount.inc);
             }
 
             globalData.allData[type].push(newItem);
-
             return newItem;
         },
         calculateBudget: function() {
@@ -60,15 +79,19 @@ const budgetCtrl = (function() {
             calculateTotalAmounts('inc');
             calculateTotalAmounts('exp');
             globalData.totalBudget = globalData.totalAmount.inc - globalData.totalAmount.exp;
-            console.log(globalData.totalAmount);
-            console.log(globalData.totalBudget);
         },
+        
         getBudgetInfo: function() {
             return {
                 totalBudget: globalData.totalBudget,
                 totalIncome: globalData.totalAmount.inc,
                 totalExpense: globalData.totalAmount.exp
             }
+        },
+        calculatePerecentage: function() {
+            globalData.totalAmount.exp.forEach(function(cur) {
+                cur.calculatePerc(globalData.totalAmount.inc)
+            });
         }
     }
 })();
@@ -123,7 +146,7 @@ return {
             <div class="item__description">${item.description}</div>
             <div class="right clearfix">
                 <div class="item__value">- ${item.value}</div>
-                <div class="item__percentage">21%</div>
+                <div class="item__percentage">${item.percentage}%</div>
                 <div class="item__delete">
                     <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
                 </div>
@@ -147,26 +170,24 @@ return {
 const appCtrl = (function(budgetCtrl, uiCtrl) {
     document.querySelector('.add__btn').addEventListener('click', function() {
         let type = uiCtrl.getTypeValue();
-        // console.log('type', type);
         let values = uiCtrl.getInputValue();
-        // console.log('values', values);
         let obj = budgetCtrl.newItem(type, values.desc, values.val);
-        // console.log(budgetCtrl.globalData);
         budgetCtrl.calculateBudget();
         let budgetInfo = budgetCtrl.getBudgetInfo();
         uiCtrl.displayBudgetInfo(budgetInfo)
         uiCtrl.displayItem(type, obj);
         uiCtrl.clearInputValues();
-        // console.log(obj);
-
-        
-        // const test = budgetCtrl.newItem('inc', 'lol', 67);
-        // console.log(test);
-
     });
     document.addEventListener('keypress', function(e) {
         if(e.keyCode == 13 || e.which == '13') {
-            // getInputValue();
+            let type = uiCtrl.getTypeValue();
+            let values = uiCtrl.getInputValue();
+            let obj = budgetCtrl.newItem(type, values.desc, values.val);
+            budgetCtrl.calculateBudget();
+            let budgetInfo = budgetCtrl.getBudgetInfo();
+            uiCtrl.displayBudgetInfo(budgetInfo)
+            uiCtrl.displayItem(type, obj);
+            uiCtrl.clearInputValues();
             
             // const test = budgetCtrl.newItem('inc', 'lol', 67);
             // console.log(test);
