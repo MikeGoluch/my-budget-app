@@ -117,14 +117,15 @@ const domPaths = {
     totalIncomeDisplay: '.budget__income--value',
     totalExpenseDisplay: '.budget__expenses--value',
     totalExpensePercentageDisplay: '.budget__expenses--percentage',
-    itemsContainer: '.container'
+    itemsContainer: '.container',
+    monthDesc: '.budget__title--month'
 }
     
 return {
     getInputs: function() {
         let typeInput = document.querySelector(domPaths.typeInput).value;
         let descInput = document.querySelector(domPaths.descriptionInput).value;
-        let valueInput = parseInt(document.querySelector(domPaths.valueInput).value);
+        let valueInput = parseFloat(document.querySelector(domPaths.valueInput).value);
         return {
             type: typeInput,
             description: descInput,
@@ -142,7 +143,7 @@ return {
         `<div class="item clearfix" id="${type}-${item.id}">
             <div class="item__description">${item.description}</div>
             <div class="right clearfix">
-                <div class="item__value">+ ${item.value}</div>
+                <div class="item__value">${this.displayFormatedNumber(item.value, type)}</div>
                 <div class="item__delete">
                     <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
                 </div>
@@ -152,7 +153,7 @@ return {
         `<div class="item clearfix" id="${type}-${item.id}">
             <div class="item__description">${item.description}</div>
             <div class="right clearfix">
-                <div class="item__value">- ${item.value}</div>
+                <div class="item__value">${this.displayFormatedNumber(item.value, type)}</div>
                 <div class="item__percentage">${item.percentage}%</div>
                 <div class="item__delete">
                     <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
@@ -161,10 +162,22 @@ return {
         </div>`;
         type === 'inc' ? incList.insertAdjacentHTML('beforeend', incMarkup) : expList.insertAdjacentHTML('beforeend', expMarkup);
     },
+    displayFormatedNumber: function(number, type) {
+        const formatOptions = { style: 'currency', currency: 'USD' };
+        const formatedNumber = new Intl.NumberFormat('en-US', formatOptions);
+        //return formatedNumber.format(number);
+        // const string = number.toString();
+        // const replaceSign = string.replace(',', '.');
+        // const formatedNumber = parseFloat(replaceSign).toFixed(2);
+        return type === 'inc' ? `+${formatedNumber.format(number)}` : `-${formatedNumber.format(number)}`;
+        // return formatedNumber;
+    },
     displayBudgetInfo: function(obj) {
-        document.querySelector(domPaths.totalBudgetDisplay).innerHTML = obj.totalBudget;
-        document.querySelector(domPaths.totalIncomeDisplay).innerHTML = obj.totalIncome;
-        document.querySelector(domPaths.totalExpenseDisplay).innerHTML = obj.totalExpense;
+        let type;
+        obj.totalBudget > 0 ? type = 'inc' : 'exp';
+        document.querySelector(domPaths.totalBudgetDisplay).innerHTML = this.displayFormatedNumber(obj.totalBudget, type);
+        document.querySelector(domPaths.totalIncomeDisplay).innerHTML = this.displayFormatedNumber(obj.totalIncome, 'inc');
+        document.querySelector(domPaths.totalExpenseDisplay).innerHTML = this.displayFormatedNumber(obj.totalExpense, 'exp');
         document.querySelector(domPaths.totalExpensePercentageDisplay).innerHTML = obj.totalPercentages;
     },
     deleteUiItem: function(itemId) {
@@ -173,6 +186,13 @@ return {
     },
     getDomPaths: function() {
         return domPaths;
+    },
+    displayMonth: function() {
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const dateObj = new Date();
+        const date = months[dateObj.getMonth()] + ' ' + dateObj.getFullYear();
+        console.log(date);
+        document.querySelector(domPaths.monthDesc).textContent = date;
     }
 }})();
 
@@ -231,6 +251,7 @@ const appCtrl = (function(budgetCtrl, uiCtrl) {
                 totalPercentages: `---`
             });
             setupEventListeners();
+            uiCtrl.displayMonth();
             // // setupPaths();
             // document.querySelector(dom.totalBudgetDisplay).innerHTML = 0;
             // document.querySelector(dom.totalIncomeDisplay).innerHTML = 0;
