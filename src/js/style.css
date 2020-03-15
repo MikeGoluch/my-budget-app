@@ -164,6 +164,7 @@ body {
     margin-left: 10px;
 }
 
+
 .add__btn:active { transform: translateY(2px); }
 
 .add__type:focus,
@@ -175,6 +176,21 @@ body {
 
 .add__btn:focus { outline: none; }
 
+/* .green_test {
+    border-color: green;
+} */
+.toggle_border:focus {
+    border-color: red;
+}
+.toggle_border_container {
+    /* border-color: red; */
+    color: red;
+}
+
+.toggle_border_container:focus {
+    border-color: red;
+}
+
 /***** LISTS *****/
 .container {
     width: 1000px;
@@ -185,11 +201,13 @@ body {
     float: left;
     width: 475px;
     margin-right: 50px;
+    text-align: center;
 }
 
 .expenses {
     float: left;
     width: 475px;
+    text-align: center;
 }
 
 h2 {

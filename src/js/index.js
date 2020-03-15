@@ -65,7 +65,6 @@ const budgetCtrl = (function() {
             return newItem;
         },
         calculateBudget: function() {
-            //total income - total expense
             calculateTotalAmounts('inc');
             calculateTotalAmounts('exp');
             globalData.totalBudget = globalData.totalAmount.inc - globalData.totalAmount.exp;
@@ -165,12 +164,7 @@ return {
     displayFormatedNumber: function(number, type) {
         const formatOptions = { style: 'currency', currency: 'USD' };
         const formatedNumber = new Intl.NumberFormat('en-US', formatOptions);
-        //return formatedNumber.format(number);
-        // const string = number.toString();
-        // const replaceSign = string.replace(',', '.');
-        // const formatedNumber = parseFloat(replaceSign).toFixed(2);
         return type === 'inc' ? `+${formatedNumber.format(number)}` : `-${formatedNumber.format(number)}`;
-        // return formatedNumber;
     },
     displayBudgetInfo: function(obj) {
         let type;
@@ -193,6 +187,17 @@ return {
         const date = months[dateObj.getMonth()] + ' ' + dateObj.getFullYear();
         console.log(date);
         document.querySelector(domPaths.monthDesc).textContent = date;
+    },
+    changeBorderColor: function(type) {
+        const inputType  = document.querySelector(domPaths.typeInput);
+        const children = document.querySelectorAll(`[data-border='toggle']`);
+        const childrenArray = Array.from(children);
+        inputType.addEventListener('change', function() {
+            inputType.classList.toggle('toggle_border');
+            childrenArray.forEach((cur) => {
+                cur.classList.toggle('toggle_border_container');
+            })
+        });
     }
 }})();
 
@@ -203,6 +208,7 @@ const appCtrl = (function(budgetCtrl, uiCtrl) {
     const addNewItem = function() {
         let input = uiCtrl.getInputs();
         console.log(input);
+        
         if (input.description !== "" && input.value > 0 && !isNaN(input.value)) {
             let obj = budgetCtrl.newItem(input.type, input.description, input.value);
             uiCtrl.displayItem(input.type, obj);
@@ -244,6 +250,7 @@ const appCtrl = (function(budgetCtrl, uiCtrl) {
     
     return {
         appInit: function() {
+            let input = uiCtrl.getInputs();
             uiCtrl.displayBudgetInfo({
                 totalBudget: 0,
                 totalIncome: 0,
@@ -252,11 +259,7 @@ const appCtrl = (function(budgetCtrl, uiCtrl) {
             });
             setupEventListeners();
             uiCtrl.displayMonth();
-            // // setupPaths();
-            // document.querySelector(dom.totalBudgetDisplay).innerHTML = 0;
-            // document.querySelector(dom.totalIncomeDisplay).innerHTML = 0;
-            // document.querySelector(dom.totalExpenseDisplay).innerHTML = 0;
-            // document.querySelector(dom.totalExpensePercentageDisplay).innerHTML = `---`;
+            uiCtrl.changeBorderColor(input.type);
         }
     };
 })(budgetCtrl, uiCtrl);
