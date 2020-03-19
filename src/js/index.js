@@ -1,19 +1,22 @@
 import './style.css';
+
 //BUDGET CONTROLLER
 
 const budgetCtrl = (function() {
     
-    const Expense = function(id, description, value) {
+    const Expense = function(id, description, value, type) {
         this.id = id;
         this.description = description;
         this.value = value;
         this.percentage = 0;
+        this.type = type;
     };
 
-    const Income = function(id, description, value) {
+    const Income = function(id, description, value, type) {
         this.id = id;
         this.description = description;
         this.value = value;
+        this.type = type;
     };
 
     Expense.prototype.calculatePerc = function() {
@@ -55,20 +58,20 @@ const budgetCtrl = (function() {
                 id = 0;
             }
             if (type === 'inc') {
-                newItem = new Income(id, description, value);
+                newItem = new Income(id, description, value, type);
             } else if (type === 'exp') {
-                newItem = new Expense(id, description, value);
+                newItem = new Expense(id, description, value, type);
                 newItem.calculatePerc();
             }
 
             globalData.allData[type].push(newItem);
+            console.log('item', globalData.allData)
             return newItem;
         },
         calculateBudget: function() {
             calculateTotalAmounts('inc');
             calculateTotalAmounts('exp');
             globalData.totalBudget = globalData.totalAmount.inc - globalData.totalAmount.exp;
-            console.log(globalData.totalBudget);
         },
         
         getBudgetInfo: function() {
@@ -107,6 +110,7 @@ const budgetCtrl = (function() {
 const uiCtrl = (function() {
 const domPaths = {
     addBtn: '.add__btn',
+    clearStorageBtn: '.clear__btn',
     descriptionInput: '.add__description',
     valueInput: '.add__value',
     typeInput: '.add__type',
@@ -135,11 +139,18 @@ return {
         document.querySelector(domPaths.descriptionInput).value = "";
         document.querySelector(domPaths.valueInput).value = "";
     },
+    displayDateItem: function() {
+        const date = new Date();
+        const day = date.getDate();
+        const month = date.getMonth();
+        return `${day}.${month}`;
+    },
     displayItem: function(type, item) {
         const incList = document.querySelector(domPaths.incomeList);
         const expList = document.querySelector(domPaths.expenseList);
         const incMarkup = 
-        `<div class="item clearfix" id="${type}-${item.id}">
+        `<div class="item_date">${this.displayDateItem()}</div>
+        <div class="item clearfix" id="${type}-${item.id}">
             <div class="item__description">${item.description}</div>
             <div class="right clearfix">
                 <div class="item__value">${this.displayFormatedNumber(item.value, type)}</div>
@@ -181,11 +192,11 @@ return {
     getDomPaths: function() {
         return domPaths;
     },
+    
     displayMonth: function() {
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         const dateObj = new Date();
         const date = months[dateObj.getMonth()] + ' ' + dateObj.getFullYear();
-        console.log(date);
         document.querySelector(domPaths.monthDesc).textContent = date;
     },
     changeBorderColor: function(type) {
@@ -198,6 +209,23 @@ return {
                 cur.classList.toggle('toggle_border_container');
             })
         });
+    },
+    
+    deleteAllIncomeItems: function() {
+        const parentEl = document.querySelector(domPaths.incomeList);
+        while (parentEl.firstChild) {
+            parentEl.removeChild(parentEl.lastChild);
+        };
+    },
+    deleteAllExpenseItems: function() {
+        const parentEl = document.querySelector(domPaths.expenseList);
+        while (parentEl.firstChild) {
+            parentEl.removeChild(parentEl.lastChild);
+        };
+    },
+    deleteAllUiItems: function() {
+        this.deleteAllIncomeItems();
+        this.deleteAllExpenseItems();
     }
 }})();
 
@@ -205,12 +233,72 @@ return {
 
 const appCtrl = (function(budgetCtrl, uiCtrl) {
 
+    
+    //LOCAL STORAGE
+    const itemsStorage = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
+    console.log('itemstorage', itemsStorage);
+    const addStorageItem = function(newItem) {
+        console.log('itemstorage1', itemsStorage);
+        itemsStorage.push(newItem);
+        localStorage.setItem('items', JSON.stringify(itemsStorage));
+        console.log('ls', localStorage);
+    }
+
+    const deleteStorageItem = function(selectedItem) {
+        console.log(selectedItem)
+        let retrieveData = JSON.parse(localStorage.getItem('items'));
+        console.log('rdata', retrieveData);
+        for (let specificItem of retrieveData) {
+            if (specificItem.id === parseInt(selectedItem.itemId)) {
+                retrieveData.splice(specificItem.id, 1);
+            }
+            console.log(specificItem);
+        }
+        console.log('data', retrieveData);
+        // itemsStorage.push(retrieveData);
+        // localStorage.setItem('items', JSON.stringify(itemsStorage));
+    }
+
+    const clearStorageData = function() {
+        const question = confirm(`Do You want to erase all data? Press 'OK' to confirm, press 'Cancel' to stop the action.`);
+        if (question == true) {
+            localStorage.clear();
+            uiCtrl.displayBudgetInfo({
+                totalBudget: 0,
+                totalIncome: 0,
+                totalExpense: 0,
+                totalPercentages: `---`
+            });
+            uiCtrl.deleteAllUiItems();
+            // const info = budgetCtrl.getBudgetInfo();
+            // info.totalBudget = 0;
+            // info.totalIncome = 0;
+            // info.totalExpense = 0;
+            // info.totalPercentages = '---';
+            updateBudget();
+            // console.log('i', info);
+            console.log('1', budgetCtrl.globalData);
+            
+        }
+        console.log(localStorage);
+    }
+
+
+    const updateBudget = function() {
+        budgetCtrl.calculateBudget();
+        budgetCtrl.calculatePercentage();
+        let budgetInfo = budgetCtrl.getBudgetInfo();
+        console.log('budgetinfo', budgetInfo);
+        uiCtrl.displayBudgetInfo(budgetInfo);
+    };
+    
     const addNewItem = function() {
         let input = uiCtrl.getInputs();
-        console.log(input);
         
         if (input.description !== "" && input.value > 0 && !isNaN(input.value)) {
             let obj = budgetCtrl.newItem(input.type, input.description, input.value);
+            console.log(obj);
+            addStorageItem(obj);
             uiCtrl.displayItem(input.type, obj);
             uiCtrl.clearInputValues();
             updateBudget();
@@ -218,16 +306,12 @@ const appCtrl = (function(budgetCtrl, uiCtrl) {
     };
 
     const deleteItem = function(item) {
-        budgetCtrl.deleteCtrlItem(item);
+        console.log(item);
+        let splitData = budgetCtrl.deleteCtrlItem(item);
+        deleteStorageItem(splitData);
         uiCtrl.deleteUiItem(item);
     }
 
-    const updateBudget = function() {
-        budgetCtrl.calculateBudget();
-        budgetCtrl.calculatePercentage();
-        let budgetInfo = budgetCtrl.getBudgetInfo();
-        uiCtrl.displayBudgetInfo(budgetInfo);
-    };
 
 
     const setupEventListeners = function() {
@@ -237,26 +321,69 @@ const appCtrl = (function(budgetCtrl, uiCtrl) {
             if(e.keyCode == 13 || e.which == '13') {
                 addNewItem();
             };
+
         });
         document.querySelector(dom.itemsContainer).addEventListener('click', function(e) {
             const delItem = e.target.parentNode.parentNode.parentNode.parentNode.id;
             deleteItem(delItem);
-            budgetCtrl.calculateBudget();
-            let budgetInfo = budgetCtrl.getBudgetInfo();
-            uiCtrl.displayBudgetInfo(budgetInfo);
+
+            // budgetCtrl.calculateBudget();
+            // let budgetInfo = budgetCtrl.getBudgetInfo();
+            // uiCtrl.displayBudgetInfo(budgetInfo);
+            updateBudget();
         });
+        document.querySelector(dom.clearStorageBtn).addEventListener('click', clearStorageData);
 
     };
     
+
     return {
         appInit: function() {
+            // let itemsStorage;
+            // if (localStorage.getItem('itemsStorage')) {
+            //     itemsStorage = JSON.parse(localStorage.getItem('itemsStorage'))
+            //   } else {
+            //     itemsStorage = [];
+            // }
+
+                function localStorageTest(){
+                    const test = "test" + new Date().valueOf();
+                    try {
+                        localStorage.setItem(test, test);
+                        localStorage.removeItem(test);
+                        return true;
+                    } catch(e) {
+                        return false;
+                    }
+                }
+
+                if (localStorageTest()) {
+                    if (localStorage.hasOwnProperty('items')) {
+                        let loadData = JSON.parse(localStorage.getItem('items'));
+                        loadData.forEach((item) => {
+                            console.log(item);
+                            let obj = budgetCtrl.newItem(item.type, item.description, parseInt(item.value));
+    
+                            updateBudget();
+                            uiCtrl.displayItem(obj.type, obj);
+                            console.log(obj);
+                        });
+                    } else {
+                        uiCtrl.displayBudgetInfo({
+                            totalBudget: 0,
+                            totalIncome: 0,
+                            totalExpense: 0,
+                            totalPercentages: `---`
+                        });
+                    }
+                }
+            
+            // if (typeof(Storage) !== "undefined") {
+            //     // Code for localStorage
+            //     } else {
+            //     alert('No web storage Support');
+            // }
             let input = uiCtrl.getInputs();
-            uiCtrl.displayBudgetInfo({
-                totalBudget: 0,
-                totalIncome: 0,
-                totalExpense: 0,
-                totalPercentages: `---`
-            });
             setupEventListeners();
             uiCtrl.displayMonth();
             uiCtrl.changeBorderColor(input.type);
@@ -265,3 +392,13 @@ const appCtrl = (function(budgetCtrl, uiCtrl) {
 })(budgetCtrl, uiCtrl);
 
 appCtrl.appInit();
+
+
+// to do
+/*
+    -dates for current expense or income
+    -localStorage
+    -correct percentages refreshing
+    - clear data button -> ask for permission (done) -> refresh page
+    - change active input for description
+*/
