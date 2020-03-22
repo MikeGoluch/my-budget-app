@@ -234,6 +234,8 @@ h2 {
 .item {
     padding: 13px;
     border-bottom: 1px solid #e7e7e7;
+    display: grid;
+    grid-template-columns: 0.5fr 1fr 1fr;
 }
 
 .item:first-child { border-top: 1px solid #e7e7e7; }
@@ -244,12 +246,13 @@ h2 {
 }
 
 .item__value {
-    float: left;
     transition: transform 0.3s;
+    display: inline-block;
 }
 
 .item__percentage {
-    float: left;
+    /* float: left; */
+    display: inline-block;
     margin-left: 20px;
     transition: transform 0.3s;
     font-size: 11px;
@@ -257,7 +260,7 @@ h2 {
     padding: 3px;
     border-radius: 3px;
     width: 32px;
-    text-align: center;
+    /* text-align: center; */
 }
 
 .income .item__value,
@@ -273,7 +276,8 @@ h2 {
 
 
 .item__delete {
-    float: left;
+    /* float: left; */
+    display: inline-block;
 }
 
 .item__delete--btn {
@@ -290,7 +294,7 @@ h2 {
 .item__delete--btn:focus { outline: none; }
 .item__delete--btn:active { transform: translateY(2px); }
 
-.item:hover .item__delete--btn { display: block; }
+.item:hover .item__delete--btn { display: inline-block; }
 .item:hover .item__value { transform: translateX(-20px); }
 .item:hover .item__percentage { transform: translateX(-20px); }
 
