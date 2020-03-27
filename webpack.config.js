@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-    entry: './src/js/index.js',
+    entry: ['babel-polyfill', './src/js/index.js'],
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js'
@@ -13,24 +13,27 @@ module.exports = {
     },
     module: {
         rules: [
-            // {
-            //     test: /\.(png|jpe?g|gif)$/i,
-            //     use: [
-            //         {
-            //             loader: 'url-loader',
-            //             options: {
-            //                 limit: 40000,
-            //                 name: '[name].[contenthash].[ext]',
-            //                 outputPath: 'assets/images/',
-            //                 publicPath: 'assets/images/'
-            //             }
-            //         },
-            //         image-webpack-loader
-            //     ],
-            // },
             {
                 test: /\.css$/,
-                use: [MiniCssExtractPlugin.loader,'css-loader'],
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                          publicPath: './'
+                        }
+                    },
+                    { loader: 'css-loader', options: { url: true } }
+                ],
+            },
+            {
+                test: /\.(png|jp(e*)g|svg)$/,  
+                use: [{
+                    loader: 'url-loader',
+                    options: { 
+                        limit: 10000, // Convert images < 8kb to base64 strings
+                        name: 'js/[hash]-[name].[ext]'
+                    } 
+                }]
             },
         ]
     },
@@ -40,7 +43,7 @@ module.exports = {
             }
         ),
         new MiniCssExtractPlugin({
-            filename: "css/style.css",
+            filename: '.src/style.css',
         })
     ]
 }
