@@ -19,22 +19,31 @@ module.exports = {
                     {
                         loader: MiniCssExtractPlugin.loader,
                         options: {
-                          publicPath: './'
+                        //   publicPath: './'
                         }
                     },
                     { loader: 'css-loader', options: { url: true } }
-                ],
+                ]
             },
             {
-                test: /\.(png|jp(e*)g|svg)$/,  
-                use: [{
-                    loader: 'url-loader',
-                    options: { 
-                        limit: 10000, // Convert images < 8kb to base64 strings
-                        name: 'js/[hash]-[name].[ext]'
-                    } 
-                }]
+                test: /\.js$/,
+                exclude: /node-modules/,
+                use: {
+                    loader: 'babel-loader'
+                }
             },
+            {
+                test: /\.(png|jp(e*)g|svg)$/,
+                use: [{
+                    loader: 'file-loader',
+                    options: {
+                        // limit: 10000, // Convert images < 8kb to base64 strings
+                        // name: '[path]-[name].[ext]',
+                        // outputPath: 'img'
+                        outputPath: 'images'
+                    }
+                }]
+            }
         ]
     },
     plugins: [
@@ -43,7 +52,7 @@ module.exports = {
             }
         ),
         new MiniCssExtractPlugin({
-            filename: '.src/style.css',
+            filename: './style.css'
         })
     ]
-}
+};

@@ -1,6 +1,5 @@
 //UI CONTROLLER
 
-
 export const domPaths = {
     addBtn: '.add__btn',
     clearStorageBtn: '.clear__btn',
@@ -19,27 +18,27 @@ export const domPaths = {
 };
 
 export const clearInputValues = () => {
-    document.querySelector(domPaths.descriptionInput).value = "";
-    document.querySelector(domPaths.valueInput).value = "";
+    document.querySelector(domPaths.descriptionInput).value = '';
+    document.querySelector(domPaths.valueInput).value = '';
 };
 
 export const changeBorderColor = () => {
-    const inputType  = document.querySelector(domPaths.typeInput);
+    const inputType = document.querySelector(domPaths.typeInput);
     const children = document.querySelectorAll(`[data-border='toggle']`);
     const childrenArray = Array.from(children);
     inputType.addEventListener('change', () => {
         inputType.classList.toggle('toggle_border');
         document.querySelector(domPaths.descriptionInput).focus();
         childrenArray.forEach((cur) => {
-            cur.classList.toggle('toggle_border_container');
-        })
+            cur.classList.toggle('toggle_border_description');
+        });
     });
 };
 
 export const displayItem = (item) => {
     const incList = document.querySelector(domPaths.incomeList);
     const expList = document.querySelector(domPaths.expenseList);
-    const incMarkup = 
+    const incMarkup =
     `<div class="item clearfix" id="${item.type}-${item.id}">
         <div class="item_date">${item.date}</div>
         <div class="item__description">${item.description}</div>
@@ -50,7 +49,7 @@ export const displayItem = (item) => {
             </div>
         </div>
     </div>`;
-    const expMarkup = 
+    const expMarkup =
     `<div class="item clearfix" id="${item.type}-${item.id}">
         <div class="item_date">${item.date}</div>
         <div class="item__description">${item.description}</div>
@@ -78,9 +77,9 @@ export const displayItemPercentage = (percentageArr) => {
         if (percentageArr[index] > 0) {
             cur.textContent = `${percentageArr[index]}%`;
         } else {
-            cur.textContent = `---`;
+            cur.textContent = '---';
         }
-    })
+    });
 };
 
 export const displayBudgetInfo = (obj) => {
@@ -92,7 +91,7 @@ export const displayBudgetInfo = (obj) => {
     if (obj.totalPercentages > 0) {
         document.querySelector(domPaths.totalExpensePercentageDisplay).innerHTML = `${obj.totalPercentages}%`;
     } else {
-        document.querySelector(domPaths.totalExpensePercentageDisplay).innerHTML = `---`;
+        document.querySelector(domPaths.totalExpensePercentageDisplay).innerHTML = '---';
     }
 };
 
@@ -112,14 +111,14 @@ export const deleteAllIncomeItems = () => {
     const parentEl = document.querySelector(domPaths.incomeList);
     while (parentEl.firstChild) {
         parentEl.removeChild(parentEl.lastChild);
-    };
+    }
 };
 
 export const deleteAllExpenseItems = () => {
     const parentEl = document.querySelector(domPaths.expenseList);
     while (parentEl.firstChild) {
         parentEl.removeChild(parentEl.lastChild);
-    };
+    }
 };
 
 export const deleteAllUiItems = () => {
@@ -132,12 +131,12 @@ export const getDomPaths = () => {
 };
 
 export const getInputs = () => {
-    let typeInput = document.querySelector(domPaths.typeInput).value;
-    let descInput = document.querySelector(domPaths.descriptionInput).value;
-    let valueInput = parseFloat(document.querySelector(domPaths.valueInput).value);
+    const typeInput = document.querySelector(domPaths.typeInput).value;
+    const descInput = document.querySelector(domPaths.descriptionInput).value;
+    const valueInput = parseFloat(document.querySelector(domPaths.valueInput).value);
     return {
         type: typeInput,
         description: descInput,
         value: valueInput
-    }
+    };
 };

@@ -22,7 +22,7 @@ export const globalData = {
     },
     totalBudget: 0,
     totalPercentages: 0
-}
+};
 
 export const calculateBudget = () => {
     calculateTotalAmounts('inc');
@@ -40,10 +40,9 @@ export const deleteCtrlItem = (itemType, itemId) => {
         return cur.id;
     });
     const indexNumber = ids.indexOf(itemId);
-    console.log(indexNumber);
     if (indexNumber !== -1) {
         globalData.allData[itemType].splice(indexNumber, 1);
-    };
+    }
     return {
         itemType: itemType,
         itemId: itemId
@@ -57,7 +56,7 @@ export const getBudgetInfo = () => {
         totalExpense: globalData.totalAmount.exp,
         totalPercentages: globalData.totalPercentages,
         totalData: globalData.allData
-    }
+    };
 };
 
 export const getItemPercentage = () => {
@@ -67,7 +66,7 @@ export const getItemPercentage = () => {
     return allPercentages;
 };
 
-export const newItem = (type,description,value) => {
+export const newItem = (type, description, value) => {
     let newItem;
     let id;
     if (globalData.allData[type].length > 0) {
@@ -87,8 +86,6 @@ export const newItem = (type,description,value) => {
 };
 
 export const calculateItemPercentage = () => {
-    console.log('gd', globalData.totalAmount.inc);
-    console.log('test', globalData.allData.exp);
     if (globalData.allData.exp) {
         globalData.allData.exp.forEach((cur) => {
             cur.calculatePercentage(globalData.totalAmount.inc);
@@ -98,50 +95,36 @@ export const calculateItemPercentage = () => {
 
 export const storeData = () => {
     const allItems = [...globalData.allData.inc, ...globalData.allData.exp];
-    console.log('ai', allItems);
     if (localStorage) {
         localStorage.setItem('items', JSON.stringify(allItems));
-    };
+    }
 };
 
 export const retrieveData = () => {
-    let storage = JSON.parse(localStorage.getItem('items'));
-    console.log('storage2', storage)
+    const storage = JSON.parse(localStorage.getItem('items'));
     storage.forEach((cur) => {
         if (cur.type === 'exp') {
             Object.setPrototypeOf(cur, Expense.prototype);
         } else if (cur.type === 'inc') {
             Object.setPrototypeOf(cur, Income.prototype);
-        };
+        }
     });
-    console.log('storage1', storage)
     storage.forEach((el) => {
         if (el.type === 'inc') {
             globalData.allData.inc.push(el);
         } else {
             globalData.allData.exp.push(el);
         }
-    })
-    console.log('storage', storage);
+    });
     return storage;
 };
 
 export const deleteStorageItem = (id, type) => {
-    // console.log(selectedItemId)
-    console.log('delid', id);
-    console.log('deltype', type);
-    let retrieveData = JSON.parse(localStorage.getItem('items'));
-    console.log('rd', retrieveData);
-    // for (let specificItem of retrieveData) {
-    //     if (specificItem.id === id && specificItem.type === type) {
-    //         retrieveData.splice(specificItem.id, 1);
-    //         localStorage.setItem('items', JSON.stringify(retrieveData));
-    //     }
-    // }
+    const retrieveData = JSON.parse(localStorage.getItem('items'));
     retrieveData.forEach((cur, index) => {
         if (cur.id === id && cur.type === type) {
             retrieveData.splice(index, 1);
             localStorage.setItem('items', JSON.stringify(retrieveData));
         }
-    })
+    });
 };
