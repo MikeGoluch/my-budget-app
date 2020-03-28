@@ -18,9 +18,6 @@ module.exports = {
                 use: [
                     {
                         loader: MiniCssExtractPlugin.loader,
-                        options: {
-                        //   publicPath: './'
-                        }
                     },
                     { loader: 'css-loader', options: { url: true } }
                 ]
@@ -37,9 +34,6 @@ module.exports = {
                 use: [{
                     loader: 'file-loader',
                     options: {
-                        // limit: 10000, // Convert images < 8kb to base64 strings
-                        // name: '[path]-[name].[ext]',
-                        // outputPath: 'img'
                         outputPath: 'images'
                     }
                 }]
