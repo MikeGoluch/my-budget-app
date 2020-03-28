@@ -45,7 +45,7 @@ export const displayItem = (item) => {
         <div class="right clearfix">
             <div class="item__value">${displayFormatedNumber(item.value, item.type)}</div>
             <div class="item__delete">
-                <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
+                <button class="item__delete--btn"><i class="far fa-times-circle"></i></button>
             </div>
         </div>
     </div>`;
@@ -57,7 +57,7 @@ export const displayItem = (item) => {
             <div class="item__value">${displayFormatedNumber(item.value, item.type)}</div>
             <div class="item__percentage">${item.percentage}%</div>
             <div class="item__delete">
-                <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button>
+                <button class="item__delete--btn"><i class="far fa-times-circle"></i></button>
             </div>
         </div>
     </div>`;
